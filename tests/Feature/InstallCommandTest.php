@@ -159,6 +159,41 @@ class InstallCommandTest extends TestCase
         $this->assertArrayHasKey('tailwindcss', $package['devDependencies']);
     }
 
+    /**
+     * Regression test: a stale version pinned by an earlier install run (or manually)
+     * must stay untouched without --force, but --force must actually refresh it —
+     * otherwise re-running after a package upgrade can never fix an outdated constraint
+     * (e.g. a @vitejs/plugin-react range too old for the host's Vite version).
+     */
+    public function test_it_preserves_existing_npm_dependency_versions_without_force(): void
+    {
+        $packageJsonPath = base_path('package.json');
+        $package = json_decode(file_get_contents($packageJsonPath), true);
+        $package['devDependencies']['@vitejs/plugin-react'] = '^4.2.0';
+        file_put_contents($packageJsonPath, json_encode($package, JSON_PRETTY_PRINT));
+
+        $this->artisan('inertia-js-kit:install')->assertExitCode(0);
+
+        $package = json_decode(file_get_contents($packageJsonPath), true);
+
+        $this->assertSame('^4.2.0', $package['devDependencies']['@vitejs/plugin-react']);
+    }
+
+    public function test_force_flag_refreshes_stale_npm_dependency_versions(): void
+    {
+        $packageJsonPath = base_path('package.json');
+        $package = json_decode(file_get_contents($packageJsonPath), true);
+        $package['devDependencies']['@vitejs/plugin-react'] = '^4.2.0';
+        file_put_contents($packageJsonPath, json_encode($package, JSON_PRETTY_PRINT));
+
+        $this->artisan('inertia-js-kit:install', ['--force' => true])->assertExitCode(0);
+
+        $package = json_decode(file_get_contents($packageJsonPath), true);
+
+        $this->assertNotSame('^4.2.0', $package['devDependencies']['@vitejs/plugin-react']);
+        $this->assertStringContainsString('^6.0.0', $package['devDependencies']['@vitejs/plugin-react']);
+    }
+
     public function test_it_wires_react_and_tailwind_into_vite_config(): void
     {
         $this->artisan('inertia-js-kit:install')->assertExitCode(0);

@@ -33,7 +33,7 @@ class InstallCommand extends Command
         $this->publishRoutes($force);
         $this->publishFrontend($force);
         $this->publishEntryPoints($force);
-        $this->updatePackageJson();
+        $this->updatePackageJson($force);
         $this->updateViteConfig();
 
         $this->components->info('Laravel Inertia JS Kit installed successfully.');
@@ -316,7 +316,7 @@ class InstallCommand extends Command
         );
     }
 
-    private function updatePackageJson(): void
+    private function updatePackageJson(bool $force): void
     {
         $packageJsonPath = base_path('package.json');
 
@@ -326,7 +326,7 @@ class InstallCommand extends Command
             return;
         }
 
-        $this->components->task('Adding npm dependencies to package.json', function () use ($packageJsonPath) {
+        $this->components->task('Adding npm dependencies to package.json', function () use ($packageJsonPath, $force) {
             $package = json_decode($this->files->get($packageJsonPath), true) ?? [];
 
             // Ranges span multiple majors (react 18 vs 19, Inertia 1/2/3, vite plugin-react 4/5/6)
@@ -348,8 +348,17 @@ class InstallCommand extends Command
                 '@types/react-dom' => '^18.2.0 || ^19.0.0',
             ];
 
-            $package['dependencies'] = array_merge($dependencies, $package['dependencies'] ?? []);
-            $package['devDependencies'] = array_merge($devDependencies, $package['devDependencies'] ?? []);
+            // Without --force: fill in only what's missing, leaving any version the developer
+            // (or an earlier run of this command) already pinned untouched.
+            // With --force: our ranges win for the packages we manage, so re-running after a
+            // package upgrade actually refreshes stale constraints instead of leaving them stuck.
+            $package['dependencies'] = $force
+                ? array_merge($package['dependencies'] ?? [], $dependencies)
+                : array_merge($dependencies, $package['dependencies'] ?? []);
+
+            $package['devDependencies'] = $force
+                ? array_merge($package['devDependencies'] ?? [], $devDependencies)
+                : array_merge($devDependencies, $package['devDependencies'] ?? []);
 
             $this->files->put(
                 $packageJsonPath,
