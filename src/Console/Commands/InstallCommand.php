@@ -329,19 +329,23 @@ class InstallCommand extends Command
         $this->components->task('Adding npm dependencies to package.json', function () use ($packageJsonPath) {
             $package = json_decode($this->files->get($packageJsonPath), true) ?? [];
 
+            // Ranges span multiple majors (react 18 vs 19, Inertia 1/2/3, vite plugin-react 4/5/6)
+            // so npm's resolver can settle on whichever mutually-compatible set matches the
+            // host's existing peers (e.g. Vite 8 requires @vitejs/plugin-react ^6, which in turn
+            // pulls in react 19 via @inertiajs/react 3.x) instead of us hard-pinning one combo.
             $dependencies = [
-                'react' => '^18.2.0',
-                'react-dom' => '^18.2.0',
-                '@inertiajs/react' => '^2.0.0',
+                'react' => '^18.2.0 || ^19.0.0',
+                'react-dom' => '^18.2.0 || ^19.0.0',
+                '@inertiajs/react' => '^1.0.0 || ^2.0.0 || ^3.0.0',
             ];
 
             $devDependencies = [
-                '@vitejs/plugin-react' => '^4.2.0',
+                '@vitejs/plugin-react' => '^4.2.0 || ^5.0.0 || ^6.0.0',
                 '@tailwindcss/vite' => '^4.0.0',
                 'tailwindcss' => '^4.0.0',
                 'typescript' => '^5.4.0',
-                '@types/react' => '^18.2.0',
-                '@types/react-dom' => '^18.2.0',
+                '@types/react' => '^18.2.0 || ^19.0.0',
+                '@types/react-dom' => '^18.2.0 || ^19.0.0',
             ];
 
             $package['dependencies'] = array_merge($dependencies, $package['dependencies'] ?? []);
