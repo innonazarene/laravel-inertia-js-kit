@@ -1,0 +1,53 @@
+{
+    "name": "innonazarene/laravel-inertia-js-kit",
+    "description": "One-command Laravel Inertia auth boilerplate (register, login, logout, change password, forgot/reset password, email verification) with a session-based AuthController, routes, and React/Tailwind pages installed automatically.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "laravel",
+        "inertia",
+        "react",
+        "tailwind",
+        "auth",
+        "monolith",
+        "boilerplate",
+        "scaffolding"
+    ],
+    "authors": [
+        {
+            "name": "Rustom Pedales",
+            "homepage": "https://github.com/innonazarene"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "laravel/framework": "^10.0|^11.0|^12.0|^13.0",
+        "inertiajs/inertia-laravel": "^1.0|^2.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "phpunit/phpunit": "^10.0|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Innonazarene\\LaravelInertiaJsKit\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Innonazarene\\LaravelInertiaJsKit\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Innonazarene\\LaravelInertiaJsKit\\LaravelInertiaJsKitServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    }
+}

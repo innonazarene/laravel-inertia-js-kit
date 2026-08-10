@@ -1,0 +1,15 @@
+import { Link, InertiaLinkProps } from '@inertiajs/react';
+
+export default function TextLink({ className = '', children, ...props }: InertiaLinkProps) {
+    return (
+        <Link
+            {...props}
+            className={
+                'rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 ' +
+                className
+            }
+        >
+            {children}
+        </Link>
+    );
+}

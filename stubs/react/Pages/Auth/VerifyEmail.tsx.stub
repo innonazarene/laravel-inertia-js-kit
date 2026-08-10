@@ -1,0 +1,36 @@
+import { Head, useForm } from '@inertiajs/react';
+import { FormEventHandler } from 'react';
+import GuestLayout from '@/Layouts/GuestLayout';
+import PrimaryButton from '@/Components/PrimaryButton';
+
+export default function VerifyEmail({ status }: { status?: string }) {
+    const { post, processing } = useForm({});
+
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+
+        post('/email/verification-notification');
+    };
+
+    return (
+        <GuestLayout>
+            <Head title="Verify email" />
+
+            <p className="mb-4 text-sm text-gray-600">
+                Thanks for signing up! Before getting started, please verify your email address by
+                clicking the link we just emailed you. If you didn't receive the email, we can send
+                you another.
+            </p>
+
+            {status === 'verification-link-sent' && (
+                <div className="mb-4 text-sm font-medium text-green-600">
+                    A new verification link has been sent to the email address you provided.
+                </div>
+            )}
+
+            <form onSubmit={submit} className="flex items-center justify-between">
+                <PrimaryButton disabled={processing}>Resend verification email</PrimaryButton>
+            </form>
+        </GuestLayout>
+    );
+}
